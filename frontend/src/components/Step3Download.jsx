@@ -49,7 +49,7 @@ function JobDownloadRow({ job, sessionId, user, format, onFormatChange }) {
     setResumeError('');
     try {
       const resp = await api.get(
-        `/download/${sessionId}/resume/${job.id}`,
+        `/download/${sessionId}/${job.id}/resume`,
         { responseType: 'blob', params: { format: ext } }
       );
       const filename = `${userName}_${company}_${title}_resume.${ext}`;
@@ -66,7 +66,7 @@ function JobDownloadRow({ job, sessionId, user, format, onFormatChange }) {
     setClError('');
     try {
       const resp = await api.get(
-        `/download/${sessionId}/cover-letter/${job.id}`,
+        `/download/${sessionId}/${job.id}/cover-letter`,
         { responseType: 'blob', params: { format: ext } }
       );
       const filename = `${userName}_${company}_${title}_cover_letter.${ext}`;
