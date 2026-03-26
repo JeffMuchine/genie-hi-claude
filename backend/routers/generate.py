@@ -27,6 +27,15 @@ class GenerateRequest(BaseModel):
     jobs: List[Dict[str, Any]]  # each job should have jd_text + parsed fields
 
 
+class RegenerateCLRequest(BaseModel):
+    job_id: str
+    session_id: str
+    tone: str = "formal email"
+    length: str = "100-150"
+    highlight: str = ""
+    current_text: Optional[str] = None
+
+
 # ── Text extraction ───────────────────────────────────────────────────────────
 
 def extract_text_from_resume(content: bytes, filename: str = "") -> str:
@@ -200,6 +209,41 @@ async def start_generation(
 
     logger.info("uid=%s started session=%s with %d jobs", uid, session_id, len(body.jobs))
     return {"session_id": session_id, "status": "generating"}
+
+
+@router.post("/cover-letter/regenerate")
+async def regenerate_cover_letter(
+    body: RegenerateCLRequest,
+    uid: str = Depends(get_current_uid),
+):
+    session = sessions.get(body.session_id)
+    if session is None or session["uid"] != uid:
+        raise HTTPException(status_code=404, detail="Session not found")
+
+    # Find the job from session
+    job = next((j for j in session["jobs"] if j.get("id") == body.job_id), None)
+    if job is None:
+        raise HTTPException(status_code=404, detail="Job not found in session")
+
+    resume_result = get_resume(uid)
+    if resume_result is None:
+        raise HTTPException(status_code=400, detail="No resume found")
+
+    resume_bytes, resume_filename = resume_result
+    resume_text = extract_text_from_resume(resume_bytes, resume_filename)
+
+    cover_letter = await generate_cover_letter(
+        resume_text, job,
+        tone=body.tone,
+        length=body.length,
+        highlight=body.highlight,
+    )
+
+    # Update session result
+    if body.job_id in session["results"]:
+        session["results"][body.job_id]["cover_letter"] = cover_letter
+
+    return {"cover_letter": cover_letter}
 
 
 @router.get("/{session_id}/status")

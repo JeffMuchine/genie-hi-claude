@@ -158,15 +158,15 @@ export default function Step1InsertJobs({
     );
 
     try {
-      const jobIds = validJobs.map((j) => j.id);
-      const { session_id } = await generateDocuments(jobIds);
+      const { session_id } = await generateDocuments(validJobs);
       setSessionId(session_id);
 
       // Start polling
       pollRef.current = setInterval(async () => {
         try {
           const statusData = await getGenerationStatus(session_id);
-          const jobStatuses = statusData.jobs || {};
+          // Backend returns { results: { [jobId]: {status, resume, cover_letter, error} } }
+          const jobStatuses = statusData.results || {};
 
           let doneCount = 0;
           const updatedResults = { ...generationResults };
@@ -200,7 +200,7 @@ export default function Step1InsertJobs({
             allStatuses.length > 0 &&
             allStatuses.every((s) => s.status === 'ready' || s.status === 'completed' || s.status === 'failed');
 
-          if (allDone || statusData.status === 'completed') {
+          if (allDone || statusData.status === 'complete' || statusData.status === 'completed') {
             clearInterval(pollRef.current);
             setGenerating(false);
             setTimeout(() => setCurrentStep(2), 600);

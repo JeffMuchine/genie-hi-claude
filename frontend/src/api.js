@@ -65,12 +65,15 @@ export function getResume() {
 }
 
 /**
- * Kick off document generation for a set of job IDs.
- * @param {string[]} jobIds
+ * Kick off document generation for a list of jobs (full objects).
+ * @param {Array<{id, title, company, jd_text, requirements, responsibilities, skills}>} jobs
  * @returns {Promise<{session_id: string}>}
  */
-export function generateDocuments(jobIds) {
-  return api.post('/generate', { job_ids: jobIds }).then((r) => r.data);
+export function generateDocuments(jobs) {
+  return api.post('/generate', {
+    job_ids: jobs.map((j) => j.id),
+    jobs,
+  }).then((r) => r.data);
 }
 
 /**
@@ -115,7 +118,7 @@ export function saveResumeVersion(jobId, sessionId, acceptedContent) {
  */
 export function regenerateCoverLetter(jobId, sessionId, options) {
   return api
-    .post('/cover-letter/regenerate', {
+    .post('/generate/cover-letter/regenerate', {
       job_id: jobId,
       session_id: sessionId,
       ...options,
