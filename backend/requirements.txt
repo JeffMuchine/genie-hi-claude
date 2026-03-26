@@ -1,0 +1,9 @@
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+anthropic==0.40.0
+firebase-admin==6.6.0
+aiohttp==3.11.10
+reportlab==4.2.5
+python-dotenv==1.0.1
+python-multipart==0.0.18
+httpx==0.28.1
