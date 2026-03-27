@@ -28,7 +28,8 @@ const NAV_ITEMS = [
     id: 'account',
     label: 'Account',
     icon: User,
-    disabled: false,
+    disabled: true,
+    badge: 'WIP',
   },
 ];
 
