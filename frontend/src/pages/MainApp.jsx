@@ -17,9 +17,17 @@ export default function MainApp() {
   const [generationResults, setGenerationResults] = useState({});
   const [resumeStored, setResumeStored] = useState(false);
 
-  // Sidebar
+  // Sidebar — auto-collapse on small viewports
   const [activeTab, setActiveTab] = useState('apply');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => window.innerWidth < 768);
+
+  useEffect(() => {
+    function handleResize() {
+      if (window.innerWidth < 768) setSidebarCollapsed(true);
+    }
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Check if resume is already stored on mount
   useEffect(() => {
