@@ -35,14 +35,11 @@ export default function JobCard({ job, onRemove, showStatus }) {
     <div
       style={{
         display: 'flex',
-        alignItems: 'center',
-        gap: 12,
-        padding: '12px 16px',
+        flexDirection: 'column',
         background: '#ffffff',
         border: '1px solid #e5e7eb',
         borderRadius: 12,
         transition: 'box-shadow 0.15s, border-color 0.15s',
-        position: 'relative',
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow = '0 2px 12px rgba(111,56,197,0.08)';
@@ -53,6 +50,7 @@ export default function JobCard({ job, onRemove, showStatus }) {
         e.currentTarget.style.borderColor = '#e5e7eb';
       }}
     >
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px' }}>
       {/* Icon */}
       <div
         style={{
@@ -127,21 +125,6 @@ export default function JobCard({ job, onRemove, showStatus }) {
         </div>
       )}
 
-      {/* Error message */}
-      {job.error && statusKey === 'failed' && (
-        <div
-          style={{
-            position: 'absolute',
-            bottom: -22,
-            left: 64,
-            fontSize: 11,
-            color: '#FF5555',
-          }}
-        >
-          {job.error}
-        </div>
-      )}
-
       {/* Remove button */}
       {onRemove && (
         <button
@@ -172,6 +155,19 @@ export default function JobCard({ job, onRemove, showStatus }) {
         >
           <X size={14} />
         </button>
+      )}
+    </div>
+      {/* Error message — in normal flow so it doesn't overlap the next card */}
+      {job.error && statusKey === 'failed' && (
+        <div
+          style={{
+            padding: '4px 16px 8px 64px',
+            fontSize: 11,
+            color: '#FF5555',
+          }}
+        >
+          {job.error}
+        </div>
       )}
     </div>
   );
