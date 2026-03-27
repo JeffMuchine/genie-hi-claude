@@ -2,9 +2,11 @@ import asyncio
 import json
 import logging
 import re
+import ssl
 from typing import Optional
 
 import aiohttp
+import certifi
 from anthropic import AsyncAnthropic
 
 logger = logging.getLogger(__name__)
@@ -35,7 +37,9 @@ async def _fetch_page_text(url: str) -> str:
             "Mozilla/5.0 (compatible; GenieHi/1.0; +https://genie-hi.app)"
         )
     }
-    async with aiohttp.ClientSession(headers=headers) as session:
+    ssl_ctx = ssl.create_default_context(cafile=certifi.where())
+    connector = aiohttp.TCPConnector(ssl=ssl_ctx)
+    async with aiohttp.ClientSession(headers=headers, connector=connector) as session:
         async with session.get(url, timeout=aiohttp.ClientTimeout(total=20)) as resp:
             resp.raise_for_status()
             html = await resp.text(errors="replace")
