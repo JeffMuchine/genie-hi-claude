@@ -74,7 +74,10 @@ async def upload_resume(
 async def get_resume_info(uid: str = Depends(get_current_uid)):
     result = get_resume(uid)
     if result is None:
-        raise HTTPException(status_code=404, detail="No resume uploaded")
+        # Return 200 with exists=false rather than 404 — the frontend polls this
+        # on mount and a 404 creates noisy console errors for a normal state.
+        return {"exists": False, "filename": None, "uploaded_at": None}
+
 
     content, filename = result
     size_mb = len(content) / (1024 * 1024)

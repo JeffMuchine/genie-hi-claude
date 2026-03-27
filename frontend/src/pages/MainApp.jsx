@@ -25,8 +25,8 @@ export default function MainApp() {
   useEffect(() => {
     async function checkResume() {
       try {
-        await getResume();
-        setResumeStored(true);
+        const data = await getResume();
+        setResumeStored(data?.exists !== false);
       } catch {
         setResumeStored(false);
       }

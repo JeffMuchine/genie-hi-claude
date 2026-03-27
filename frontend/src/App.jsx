@@ -16,12 +16,21 @@ export function useAuth() {
   return ctx;
 }
 
+// In DEV_MODE (VITE_DEV_MODE=true) we skip Firebase auth and use a mock user
+const DEV_MODE = import.meta.env.VITE_DEV_MODE === 'true';
+const DEV_USER = DEV_MODE ? { uid: 'dev-user-001', email: 'dev@genie-hi.local', displayName: 'Dev User' } : null;
+const DEV_TOKEN = DEV_MODE ? 'dev-token' : null;
+
 function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(DEV_USER);
+  const [token, setToken] = useState(DEV_TOKEN);
+  const [loading, setLoading] = useState(!DEV_MODE);
 
   useEffect(() => {
+    if (DEV_MODE) {
+      if (DEV_TOKEN) localStorage.setItem('genie_token', DEV_TOKEN);
+      return;
+    }
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
@@ -44,7 +53,7 @@ function AuthProvider({ children }) {
     });
 
     return () => unsubscribe();
-  }, []);
+  }, []);  // eslint-disable-line
 
   // Refresh token every 50 minutes (Firebase tokens expire after 1 hour)
   useEffect(() => {
@@ -137,7 +146,7 @@ function RootRedirect() {
 export default function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <Routes>
           <Route path="/" element={<RootRedirect />} />
           <Route

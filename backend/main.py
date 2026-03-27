@@ -23,6 +23,11 @@ def _init_firebase() -> None:
     if firebase_admin._apps:
         return
 
+    # DEV_MODE=true: skip Firebase init (useful for local testing without credentials)
+    if os.getenv("DEV_MODE", "").lower() == "true":
+        logger.warning("DEV_MODE=true — Firebase auth is DISABLED. All requests treated as authenticated.")
+        return
+
     google_creds_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     if google_creds_path:
         logger.info("Initialising Firebase from GOOGLE_APPLICATION_CREDENTIALS file")

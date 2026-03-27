@@ -386,6 +386,7 @@ export default function ResumeUploadModal({ isOpen, onClose, onUploadSuccess }) 
                 Cancel
               </button>
               <button
+                aria-label="Confirm and upload resume file"
                 onClick={handleUpload}
                 disabled={!selectedFile}
                 style={{

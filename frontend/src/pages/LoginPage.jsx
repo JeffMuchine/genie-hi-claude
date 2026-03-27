@@ -31,8 +31,13 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
 
-    if (!email.trim()) {
+    const trimmedEmail = email.trim();
+    if (!trimmedEmail) {
       setError('Please enter your email address.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedEmail)) {
+      setError('Please enter a valid email address.');
       return;
     }
     if (!password) {

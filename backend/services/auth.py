@@ -1,18 +1,26 @@
 import logging
+import os
 from typing import Optional
 
 from fastapi import Header, HTTPException
 from firebase_admin import auth as firebase_auth
 
+_DEV_MODE = os.getenv("DEV_MODE", "").lower() == "true"
+_DEV_UID = "dev-user-001"
+
 logger = logging.getLogger(__name__)
 
 
-async def get_current_uid(authorization: str = Header(...)) -> str:
+async def get_current_uid(authorization: str = Header(default=None)) -> str:
     """
     Validate Firebase Bearer token and return the uid.
     Raises HTTP 401 on any failure.
+    In DEV_MODE, bypasses validation and returns a fixed test uid.
     """
-    if not authorization.startswith("Bearer "):
+    if _DEV_MODE:
+        return _DEV_UID
+
+    if not authorization or not authorization.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Invalid authorization header format")
 
     token = authorization.removeprefix("Bearer ").strip()

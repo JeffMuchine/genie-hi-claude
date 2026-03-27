@@ -59,6 +59,11 @@ async def _with_retries(coro_fn, label: str, retries: int = 3):
             return await coro_fn()
         except Exception as exc:
             last_exc = exc
+            # Never retry on authentication or permission errors — retrying won't help
+            err_str = str(exc).lower()
+            if any(x in err_str for x in ("401", "authentication_error", "invalid x-api-key", "permission")):
+                logger.error("[%s] auth error — not retrying: %s", label, exc)
+                break
             if attempt < retries - 1:
                 wait = delays[attempt]
                 logger.warning(
